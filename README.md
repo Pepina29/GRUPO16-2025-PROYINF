@@ -4,7 +4,7 @@
          · Ricardo Alvear - 202373574-4
          · Josefina Pino - 202373619-8
          · Vicente Silva - 202373514-0
-      Tutora:
+      Tutoras:
          · Profesora Luz Chourio
          · Ayudante Javiera Osorio
 
