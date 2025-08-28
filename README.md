@@ -1,6 +1,6 @@
 # Grupo 16 INF-236
 Integrantes:
-    * Nicolas Arellano - 202373639-2
+    *Nicolas Arellano - 202373639-2
     * Ricardo Alvear - 202373574-4
     * Josefina Pino - 202373619-8
     * Vicente Silva - 202373514-0
