@@ -4,8 +4,8 @@
          · Ricardo Alvear - 202373574-4
          · Josefina Pino - 202373619-8
          · Vicente Silva - 202373514-0
-Tutor:
-    · Luz Chourio
+      Tutora:
+         · Luz Chourio
 
 # Video presentación del cliente:
     -
