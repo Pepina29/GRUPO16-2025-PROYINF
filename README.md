@@ -11,8 +11,8 @@
 # Wiki a trabajar:
     https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki
 
-# Aspecto técnico relevante:
+# Aspectos técnicos relevantes:
     -
 
 # Evidencia:
-    -
+    https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki/evidencia-proyecto-base
