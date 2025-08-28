@@ -10,7 +10,8 @@
 # Video presentación del cliente:
     -
 
-# [Wiki](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki) a trabajar.
+# Wiki a trabakar
+>[Wiki grupo 16](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki)
 
 # Aspectos técnicos relevantes:
     -
