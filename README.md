@@ -10,11 +10,9 @@
 # Video presentación del cliente:
     -
 
-# Wiki a trabakar
+# Wiki y evidencia del proyecto.
 >[Wiki grupo 16](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki)
+>[Evidencia del proyecto base](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki/evidencia-proyecto-base)
 
 # Aspectos técnicos relevantes:
     -
-> Obtener enlace
-# Evidencia:
-    https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki/evidencia-proyecto-base
