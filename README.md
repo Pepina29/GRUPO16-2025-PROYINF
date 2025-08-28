@@ -1,1 +1,18 @@
-# GRUPO16-2025-PROYINF
+#Grupo 15 INF-236
+#Integrantes:
+    -Nicolas Arellano - 202373639-2
+    -Ricardo Alvear - 202373574-4
+    -Josefina Pino - 202373619-8
+    -Vicente Silva - 202373514-0
+
+#Video presentación del cliente:
+    -
+
+#Wiki a trabajar:
+    -
+
+#Aspecto técnico relevante:
+    -
+
+#Evidencia:
+    -
