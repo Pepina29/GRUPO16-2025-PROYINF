@@ -8,7 +8,7 @@
          · Luz Chourio
 
 # Video presentación del cliente:
-    https://usmcl-my.sharepoint.com/:v:/g/personal/ralvear_usm_cl/Efd_5prci_hAtxm_-2jYGNkB0jpuzTVBrOdpBnoAon1_lQ?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=2u1FcY
+>[Presentación del cliente - Proyecto INF236](https://usmcl-my.sharepoint.com/:v:/g/personal/ralvear_usm_cl/Efd_5prci_hAtxm_-2jYGNkB0jpuzTVBrOdpBnoAon1_lQ?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=2u1FcY)
 
 # Wiki y evidencia del proyecto.
 >[Wiki grupo 16](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki)
