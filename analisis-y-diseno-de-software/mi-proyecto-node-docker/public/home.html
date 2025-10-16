@@ -3,73 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login y Registro</title>
+    <title>Sistema de Préstamos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        /* Header */
+        header {
+            background-color: white;
+            padding: 20px 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-login {
+            background-color: white;
+            color: #333;
+            border: 2px solid #333;
+        }
+
+        .btn-login:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        .btn-register {
+            background-color: #333;
+            color: white;
+        }
+
+        .btn-register:hover {
+            background-color: #555;
+        }
+
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .welcome-section {
+            background-color: white;
+            padding: 60px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .welcome-section h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .welcome-section p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .feature-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 400px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close {
+            font-size: 30px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #333;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            background-color: #555;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .switch-form a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Sistema de Login</h1>
-    
-    <!-- Sección de Login -->
-    <div id="loginSection">
-        <h2>Iniciar Sesión</h2>
-        <form id="loginForm">
-            <label>RUT:</label><br>
-            <input type="number" id="loginRut" required><br><br>
-            
-            <label>Contraseña:</label><br>
-            <input type="password" id="loginPassword" required><br><br>
-            
-            <button type="submit">Entrar</button>
-        </form>
-        <br>
-        <p>¿No tienes cuenta? <a href="#" onclick="showRegister()">Regístrate aquí</a></p>
+    <!-- Header -->
+    <header>
+        <h1>💰 Sistema de Préstamos</h1>
+        
+        <!-- Botones cuando NO está logueado -->
+        <div id="authButtons" class="auth-buttons">
+            <button class="btn btn-login" onclick="openModal('login')">Iniciar Sesión</button>
+            <button class="btn btn-register" onclick="openModal('register')">Registrarse</button>
+        </div>
+
+        <!-- Info cuando SÍ está logueado -->
+        <div id="userInfo" class="user-info hidden">
+            <span class="user-name" id="userName"></span>
+            <button class="btn btn-logout" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="welcome-section">
+            <h2>Bienvenido a nuestro Sistema de Préstamos</h2>
+            <p>Simulá tu préstamo, conocé las cuotas mensuales y solicitá tu crédito de forma rápida y segura.</p>
+            <p>Registrate para acceder a todas las funcionalidades.</p>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <h3>📊 Simulá tu Préstamo</h3>
+                <p>Calculá tus cuotas mensuales antes de solicitar tu préstamo.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚡ Proceso Rápido</h3>
+                <p>Solicitá tu préstamo en minutos de forma 100% online.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔒 Seguro y Confiable</h3>
+                <p>Tus datos están protegidos con los mejores estándares de seguridad.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Sistema de Préstamos. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Modal Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Iniciar Sesión</h2>
+                <span class="close" onclick="closeModal('login')">&times;</span>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>RUT</label>
+                    <input type="number" id="loginRut" required placeholder="12345678">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+            <div class="switch-form">
+                ¿No tenés cuenta? <a href="#" onclick="switchModal('login', 'register')">Registrate acá</a>
+            </div>
+        </div>
     </div>
 
-    <!-- Sección de Registro -->
-    <div id="registerSection" style="display:none;">
-        <h2>Registrarse</h2>
-        <form id="registerForm">
-            <label>RUT:</label><br>
-            <input type="number" id="regRut" required><br><br>
-            
-            <label>Nombre:</label><br>
-            <input type="text" id="regNombre" required><br><br>
-            
-            <label>Apellido:</label><br>
-            <input type="text" id="regApellido" required><br><br>
-            
-            <label>Email:</label><br>
-            <input type="email" id="regEmail" required><br><br>
-            
-            <label>Contraseña:</label><br>
-            <input type="password" id="regPassword" required><br><br>
-            
-            <button type="submit">Registrarse</button>
-        </form>
-        <br>
-        <p>¿Ya tienes cuenta? <a href="#" onclick="showLogin()">Inicia sesión aquí</a></p>
-    </div>
-
-    <!-- Sección Principal (después de login) -->
-    <div id="mainSection" style="display:none;">
-        <h2>Bienvenido</h2>
-        <p>Usuario: <span id="userName"></span></p>
-        <button onclick="logout()">Cerrar Sesión</button>
-        
-        <hr>
-        
-        <h3>Aquí va el contenido de tu app...</h3>
+    <!-- Modal Register -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Registrarse</h2>
+                <span class="close" onclick="closeModal('register')">&times;</span>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>RUT</label>
+                    <input type="number" id="regRut" required placeholder="12345678">
+                </div>
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="regNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Apellido</label>
+                    <input type="text" id="regApellido" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="regPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn-submit">Registrarse</button>
+            </form>
+            <div class="switch-form">
+                ¿Ya tenés cuenta? <a href="#" onclick="switchModal('register', 'login')">Iniciá sesión acá</a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Cambiar entre login y registro
-        function showRegister() {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('registerSection').style.display = 'block';
+        // Manejo de modales
+        function openModal(type) {
+            document.getElementById(type + 'Modal').style.display = 'block';
         }
 
-        function showLogin() {
-            document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('loginSection').style.display = 'block';
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').style.display = 'none';
+        }
+
+        function switchModal(from, to) {
+            closeModal(from);
+            openModal(to);
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
         }
 
         // Login
@@ -89,16 +391,15 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    alert('Login exitoso!');
-                    document.getElementById('userName').textContent = 
-                        `${data.user.nombre_cliente} ${data.user.apellido_cliente}`;
-                    document.getElementById('loginSection').style.display = 'none';
-                    document.getElementById('mainSection').style.display = 'block';
+                    alert('¡Login exitoso!');
+                    showUserInfo(data.user);
+                    closeModal('login');
+                    e.target.reset();
                 } else {
                     alert('Error: ' + data.error);
                 }
             } catch (err) {
-                alert('Error de conexión');
+                alert('Error de conexión con el servidor');
             }
         });
 
@@ -124,22 +425,30 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    alert('Registro exitoso! Ahora puedes iniciar sesión');
-                    document.getElementById('registerForm').reset();
-                    showLogin();
+                    alert('¡Registro exitoso! Ahora podés iniciar sesión');
+                    e.target.reset();
+                    switchModal('register', 'login');
                 } else {
                     alert('Error: ' + result.error);
                 }
             } catch (err) {
-                alert('Error de conexión');
+                alert('Error de conexión con el servidor');
             }
         });
 
+        // Mostrar info del usuario
+        function showUserInfo(user) {
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('userName').textContent = 
+                `${user.nombre_cliente} ${user.apellido_cliente}`;
+        }
+
         // Logout
         function logout() {
-            document.getElementById('mainSection').style.display = 'none';
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('loginForm').reset();
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('authButtons').classList.remove('hidden');
+            alert('Sesión cerrada');
         }
     </script>
 </body>
