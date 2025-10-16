@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login y Registro</title>
+</head>
+<body>
+    <h1>Sistema de Login</h1>
+    
+    <!-- Sección de Login -->
+    <div id="loginSection">
+        <h2>Iniciar Sesión</h2>
+        <form id="loginForm">
+            <label>RUT:</label><br>
+            <input type="number" id="loginRut" required><br><br>
+            
+            <label>Contraseña:</label><br>
+            <input type="password" id="loginPassword" required><br><br>
+            
+            <button type="submit">Entrar</button>
+        </form>
+        <br>
+        <p>¿No tienes cuenta? <a href="#" onclick="showRegister()">Regístrate aquí</a></p>
+    </div>
+
+    <!-- Sección de Registro -->
+    <div id="registerSection" style="display:none;">
+        <h2>Registrarse</h2>
+        <form id="registerForm">
+            <label>RUT:</label><br>
+            <input type="number" id="regRut" required><br><br>
+            
+            <label>Nombre:</label><br>
+            <input type="text" id="regNombre" required><br><br>
+            
+            <label>Apellido:</label><br>
+            <input type="text" id="regApellido" required><br><br>
+            
+            <label>Email:</label><br>
+            <input type="email" id="regEmail" required><br><br>
+            
+            <label>Contraseña:</label><br>
+            <input type="password" id="regPassword" required><br><br>
+            
+            <button type="submit">Registrarse</button>
+        </form>
+        <br>
+        <p>¿Ya tienes cuenta? <a href="#" onclick="showLogin()">Inicia sesión aquí</a></p>
+    </div>
+
+    <!-- Sección Principal (después de login) -->
+    <div id="mainSection" style="display:none;">
+        <h2>Bienvenido</h2>
+        <p>Usuario: <span id="userName"></span></p>
+        <button onclick="logout()">Cerrar Sesión</button>
+        
+        <hr>
+        
+        <h3>Aquí va el contenido de tu app...</h3>
+    </div>
+
+    <script>
+        // Cambiar entre login y registro
+        function showRegister() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('registerSection').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('registerSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const rut = document.getElementById('loginRut').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ rut: parseInt(rut), password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('Login exitoso!');
+                    document.getElementById('userName').textContent = 
+                        `${data.user.nombre_cliente} ${data.user.apellido_cliente}`;
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('mainSection').style.display = 'block';
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Error de conexión');
+            }
+        });
+
+        // Registro
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                rut: parseInt(document.getElementById('regRut').value),
+                nombre: document.getElementById('regNombre').value,
+                apellido: document.getElementById('regApellido').value,
+                email: document.getElementById('regEmail').value,
+                password: document.getElementById('regPassword').value
+            };
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('Registro exitoso! Ahora puedes iniciar sesión');
+                    document.getElementById('registerForm').reset();
+                    showLogin();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (err) {
+                alert('Error de conexión');
+            }
+        });
+
+        // Logout
+        function logout() {
+            document.getElementById('mainSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginForm').reset();
+        }
+    </script>
+</body>
+</html>
