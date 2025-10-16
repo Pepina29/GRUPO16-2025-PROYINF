@@ -2,7 +2,7 @@ CREATE TABLE usuario (
     rut_cliente INT PRIMARY KEY,
     nombre_cliente VARCHAR(50),
     apellido_cliente VARCHAR(50),
-    contraseña TEXT  -- hay que hashearla
+    password VARCHAR(50) NOT NULL -- hay que hashearla
 );
 
 CREATE TABLE solicitud_prestamo (
