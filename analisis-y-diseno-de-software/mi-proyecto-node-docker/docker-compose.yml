@@ -15,7 +15,8 @@ services:
       postgres_db:
         condition: service_healthy
     volumes:
-      - .:/app
+      - ./server:/app/server
+
     command: sh -c "npm start"
 
   postgres_db:

@@ -1,14 +1,15 @@
 FROM node:18-alpine
 
-WORKDIR /app
+WORKDIR /app/server
 
-COPY package*.json ./
+# copia solo el package.json y package-lock.json del backend
+COPY server/package*.json ./
 RUN npm install
 
-COPY . .
+# luego copia el resto del código del backend
+COPY server .
 
-# Instalar wait-port globalmente
 RUN npm install -g wait-port
 
-# Comando modificado para esperar a PostgreSQL
-CMD ["sh", "-c", "wait-port postgres_db:5432 && npm start"]
+EXPOSE 3000
+CMD ["sh", "-c", "wait-port postgres_db:5432 && node index.js"]
