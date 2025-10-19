@@ -65,9 +65,9 @@ export const LoanSimulator = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calculator className="h-5 w-5 text-accent" />
-            Simulá tu Préstamo
+            Simula tu Préstamo
           </CardTitle>
-          <CardDescription>Calculá las cuotas mensuales antes de solicitar tu crédito</CardDescription>
+          <CardDescription>Calcula las cuotas mensuales antes de solicitar tu crédito</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={calculateLoan} className="space-y-6">
@@ -110,7 +110,12 @@ export const LoanSimulator = () => {
                 id="fecha"
                 type="date"
                 value={fechaPrimerPago}
-                onChange={(e) => setFechaPrimerPago(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const localDate = new Date(val + "T12:00:00");
+                  const fixed = localDate.toISOString().slice(0,10);
+                  setFechaPrimerPago(fixed);
+                }}
                 required
                 min={format(new Date(), "yyyy-MM-dd")}
               />

@@ -104,7 +104,7 @@ export const Header = () => {
               Entrar
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-              ¿No tenés cuenta?{" "}
+              ¿No tienes cuenta?{" "}
               <button
                 type="button"
                 className="font-semibold text-primary hover:underline"
@@ -151,7 +151,7 @@ export const Header = () => {
               Registrarse
             </Button>
             <p className="text-center text-sm text-muted-foreground">
-              ¿Ya tenés cuenta?{" "}
+              ¿Ya tienes cuenta?{" "}
               <button
                 type="button"
                 className="font-semibold text-primary hover:underline"
@@ -160,7 +160,7 @@ export const Header = () => {
                   setLoginOpen(true);
                 }}
               >
-                Iniciá sesión acá
+                Inicia sesión acá
               </button>
             </p>
           </form>

@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Calendar, TrendingUp, DollarSign } from "lucide-react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 
 interface LoanResultsProps {
@@ -41,7 +41,10 @@ export const LoanResults = ({
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
-    return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", { locale: es });
+    const d = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      ? parse(dateString, "yyyy-MM-dd", new Date())
+      : new Date(dateString);
+    return format(d, "dd 'de' MMMM 'de' yyyy", { locale: es });
   };
 
   return (

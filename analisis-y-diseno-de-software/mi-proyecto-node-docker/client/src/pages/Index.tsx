@@ -16,7 +16,7 @@ const Index = () => {
               Bienvenido a nuestro Sistema de Préstamos
             </h2>
             <p className="text-lg md:text-xl mb-4 text-white/90">
-              Simulá tu préstamo, conocé las cuotas mensuales y solicitá tu crédito de forma rápida y segura.
+              Simula tu préstamo, conoce las cuotas mensuales y solicita tu crédito de forma rápida y segura.
             </p>
             <p className="text-base text-white/80">
               Registrate para acceder a todas las funcionalidades.
@@ -41,12 +41,12 @@ const Index = () => {
                   <div className="rounded-lg bg-accent/10 p-3">
                     <TrendingUp className="h-6 w-6 text-accent" />
                   </div>
-                  <CardTitle className="text-lg">Simulá tu Préstamo</CardTitle>
+                  <CardTitle className="text-lg">Simula tu Préstamo</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Calculá tus cuotas mensuales antes de solicitar tu préstamo. Sin sorpresas, todo transparente.
+                  Calcula tus cuotas mensuales antes de solicitar tu préstamo. Sin sorpresas, todo transparente.
                 </p>
               </CardContent>
             </Card>
@@ -62,7 +62,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Solicitá tu préstamo en minutos de forma 100% online. Sin papeleos ni esperas innecesarias.
+                  Solicita tu préstamo en minutos de forma 100% online. Sin papeleos ni esperas innecesarias.
                 </p>
               </CardContent>
             </Card>
