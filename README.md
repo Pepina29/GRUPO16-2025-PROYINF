@@ -26,5 +26,7 @@ Para el correcto despliegue del sitio web es necesario tener en cuenta Docker pa
 
 El acceso directo a la página se puede encontrar [aquí](http://localhost:3000/) asumiendo que no hubo cambios en el port, a su vez, el correcto iniciamento de la página debería de lucir como se muestra en la [wiki](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki/evidencia-proyecto-base)
 
+# Video Hito 3: https://drive.google.com/file/d/1OQ7sbg4d3m2tbigpcXDilGzjYwD4_I9q/view?usp=sharing
 # Aspectos técnicos relevantes:
     -
+
