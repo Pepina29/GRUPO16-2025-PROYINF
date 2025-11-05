@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, UserPlus, LogOut } from "lucide-react";
+import { LogIn, UserPlus, LogOut, Info, Home } from "lucide-react";
 
 interface User {
   rut: number;
@@ -13,6 +14,8 @@ interface User {
 }
 
 export const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -53,31 +56,56 @@ export const Header = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">💰</span>
-            <h1 className="text-xl font-bold text-foreground">Sistema de Préstamos</h1>
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <span className="text-2xl">💰</span>
+              <h1 className="text-xl font-bold text-foreground">Sistema de Préstamos</h1>
+            </button>
+
+            {/* Navegación */}
+            <nav className="hidden md:flex items-center gap-2">
+              <Button
+                variant={location.pathname === "/" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => navigate("/")}
+              >
+                <Home className="h-4 w-4 mr-2" />
+                Inicio
+              </Button>
+              <Button
+                variant={location.pathname === "/informacion" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => navigate("/informacion")}
+              >
+                <Info className="h-4 w-4 mr-2" />
+                Información
+              </Button>
+            </nav>
           </div>
 
           <div className="flex items-center gap-3">
             {user ? (
               <>
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-sm font-medium text-foreground hidden sm:inline">
                   {user.nombre} {user.apellido}
                 </span>
                 <Button variant="destructive" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
-                  Cerrar Sesión
+                  <span className="hidden sm:inline ml-2">Cerrar Sesión</span>
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="outline" size="sm" onClick={() => setLoginOpen(true)}>
                   <LogIn className="h-4 w-4" />
-                  Iniciar Sesión
+                  <span className="hidden sm:inline ml-2">Iniciar Sesión</span>
                 </Button>
                 <Button variant="default" size="sm" onClick={() => setRegisterOpen(true)}>
                   <UserPlus className="h-4 w-4" />
-                  Registrarse
+                  <span className="hidden sm:inline ml-2">Registrarse</span>
                 </Button>
               </>
             )}
