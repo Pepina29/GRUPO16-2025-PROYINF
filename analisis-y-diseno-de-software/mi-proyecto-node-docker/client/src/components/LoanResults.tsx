@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, Calendar, TrendingUp, DollarSign } from "lucide-react";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 interface LoanResultsProps {
   open: boolean;
@@ -26,9 +27,23 @@ export const LoanResults = ({
   pagoPorCuota,
   montoTotal,
 }: LoanResultsProps) => {
+  const navigate = useNavigate();
+
   const handleSolicitar = () => {
-    alert("¡Solicitud de préstamo enviada! En breve te contactaremos.");
+    // Cerrar el diálogo
     onOpenChange(false);
+    
+    // Navegar a la página de solicitud pasando los datos del préstamo
+    navigate('/solicitar-prestamo', {
+      state: {
+        monto,
+        tasaInteres,
+        cuotas,
+        fechaPrimerPago,
+        pagoPorCuota,
+        montoTotal,
+      }
+    });
   };
 
   const formatCurrency = (value: number) => {
