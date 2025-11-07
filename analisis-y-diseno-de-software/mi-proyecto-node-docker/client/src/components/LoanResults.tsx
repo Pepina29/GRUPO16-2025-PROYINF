@@ -5,6 +5,7 @@ import { CheckCircle2, Calendar, TrendingUp, DollarSign } from "lucide-react";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
+import { addSimulation, SIM_LIMIT } from "./simStorage";
 
 interface LoanResultsProps {
   open: boolean;
@@ -28,6 +29,23 @@ export const LoanResults = ({
   montoTotal,
 }: LoanResultsProps) => {
   const navigate = useNavigate();
+
+  const handleGuardarPerfil = () => {
+    const sim = {
+      monto,
+      tasa: tasaInteres,          // guarda con la clave "tasa"
+      cuotas,
+      fechaPrimerPago,
+      pagoPorCuota,
+      montoTotal,
+    };
+    const res = addSimulation(sim);
+    if (!res.ok && res.reason === "limit") {
+      alert(`Alcanzaste el máximo de ${SIM_LIMIT} simulaciones. Ve a Perfil para borrar alguna.`);
+      return;
+    }
+    alert("Simulación guardada en Perfil");
+  };
 
   const handleSolicitar = () => {
     // Cerrar el diálogo
@@ -64,7 +82,7 @@ export const LoanResults = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="w-[min(92vw,680px)] sm:max-w-[680px] overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <CheckCircle2 className="h-6 w-6 text-success" />
@@ -72,7 +90,7 @@ export const LoanResults = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-x-hidden">
           <div className="grid gap-4">
             <div className="flex items-center justify-between rounded-lg bg-secondary p-4">
               <div className="flex items-center gap-3">
@@ -125,10 +143,15 @@ export const LoanResults = ({
           </div>
         </div>
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
             Modificar
           </Button>
+
+          <Button variant="outline" onClick={handleGuardarPerfil} className="flex-1">
+            Guardar en Perfil
+          </Button>
+
           <Button variant="accent" onClick={handleSolicitar} className="flex-1" size="lg">
             Realizar Solicitud de Préstamo
           </Button>

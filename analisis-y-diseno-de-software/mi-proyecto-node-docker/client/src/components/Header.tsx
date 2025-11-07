@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogIn, UserPlus, LogOut, Info, Home } from "lucide-react";
+import { SIMS_KEY } from "@/components/simStorage";
 
 interface User {
   rut: number;
@@ -16,9 +17,40 @@ interface User {
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+
+  // --- badge simulaciones guardadas ---
+  const [savedCount, setSavedCount] = useState(0);
+
+  const readSavedCount = () => {
+    try {
+      const raw = localStorage.getItem(SIMS_KEY);
+      if (!raw) return 0;
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.length : 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  useEffect(() => {
+    const update = () => setSavedCount(readSavedCount());
+    const onStorage = (_e: StorageEvent) => update();
+    const onCustom = (_e: Event) => update();
+
+    update(); // carga inicial
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("simulations:changed", onCustom);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("simulations:changed", onCustom);
+    };
+  }, []);
+  // ------------------------------------
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +89,7 @@ export const Header = () => {
       <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
-            <button 
+            <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
@@ -92,6 +124,19 @@ export const Header = () => {
                 <span className="text-sm font-medium text-foreground hidden sm:inline">
                   {user.nombre} {user.apellido}
                 </span>
+
+                {/* PERFIL con badge de simulaciones */}
+                <Button variant="secondary" size="sm" asChild>
+                  <Link to="/perfil" className="relative">
+                    Perfil
+                    {savedCount > 0 && (
+                      <span className="ml-2 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs h-5 min-w-5 px-1">
+                        {savedCount}
+                      </span>
+                    )}
+                  </Link>
+                </Button>
+
                 <Button variant="destructive" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline ml-2">Cerrar Sesión</span>
