@@ -24,7 +24,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # - ./bdd.sql:/docker-entrypoint-initdb.d/init.sql  # Descomenta después si lo necesitas
     ports:
-      - "5433:5432"  # ✅ CAMBIA AQUÍ: 5433 en tu máquina, 5432 dentro del contenedor
+      - "5433:5432"  # CAMBIA AQUÍ: 5433 en tu máquina, 5432 dentro del contenedor
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
       interval: 5s
