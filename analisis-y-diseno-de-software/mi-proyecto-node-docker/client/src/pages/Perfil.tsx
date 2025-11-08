@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 const SIM_LIMIT = 5;
 
 type StoredSimulation = {
   id: string;
   data: any;
-  createdAt?: string; // opcional por si reúsas en otros lados
+  createdAt?: string;
 };
+
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +16,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Calendar, DollarSign, TrendingUp, Percent, Trash2, ArrowRight } from "lucide-react";
+import MiniToast from "@/components/MiniToast";
 
 type Sim = {
   monto?: number;
@@ -27,7 +30,7 @@ type Sim = {
 
 const USER_KEY = "app:user";
 const getLoggedUser = () => {
-  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || "null"); } catch { return null; }
 };
 
 type DbSimulation = {
@@ -43,6 +46,15 @@ const Perfil = () => {
   const [compareOpen, setCompareOpen] = useState(false);
   const navigate = useNavigate();
 
+  // ---- MiniToast state ----
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState<{title: string; description?: string; variant?: "default"|"success"|"error"}>({ title: "" });
+  const showToast = (title: string, description?: string, variant: "default"|"success"|"error" = "default") => {
+    setToastMsg({ title, description, variant });
+    setToastOpen(true);
+  };
+  // -------------------------
+
   const load = async () => {
     const u = getLoggedUser();
     if (!u?.rut) { setList([]); return; }
@@ -52,37 +64,33 @@ const Perfil = () => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
 
       const j = await r.json();
-      // 👇 debug temporal para ver el shape real
-      console.debug('[Perfil] /api/simulations?rut=', u.rut, '->', j);
-
-      // tolerante a diferentes claves/formatos
       const sims = (j?.simulations ?? j?.rows ?? j) as any[];
       setList(Array.isArray(sims) ? sims : []);
     } catch (e) {
-      console.error('[Perfil] load() fallo:', e);
+      console.error("[Perfil] load() fallo:", e);
       setList([]);
+      showToast("No se pudo cargar", "Inténtalo nuevamente.", "error");
     }
   };
   useEffect(() => { load(); }, []);
 
   useEffect(() => {
     const onChanged = () => load();
-    window.addEventListener('simulations:changed', onChanged as EventListener);
-    return () => window.removeEventListener('simulations:changed', onChanged as EventListener);
+    window.addEventListener("simulations:changed", onChanged as EventListener);
+    return () => window.removeEventListener("simulations:changed", onChanged as EventListener);
   }, []);
 
   const onDelete = async (id: string) => {
     const u = getLoggedUser();
     if (!u?.rut) return;
-    const r = await fetch(`/api/simulations/${id}?rut=${u.rut}`, { method: 'DELETE' });
+    const r = await fetch(`/api/simulations/${id}?rut=${u.rut}`, { method: "DELETE" });
     if (r.ok) {
-      setList((prev) => prev.filter(x => x.id !== id));
+      setList((prev) => prev.filter((x) => x.id !== id));
       setSelectedIds((s) => s.filter((x) => x !== id));
-
-      // 🔔 avisar al Header para refrescar el badge
-      window.dispatchEvent(new CustomEvent('simulations:changed'));
+      window.dispatchEvent(new CustomEvent("simulations:changed"));
+      showToast("Simulación eliminada", undefined, "success");
     } else {
-      alert("No se pudo eliminar");
+      showToast("No se pudo eliminar", "Inténtalo nuevamente.", "error");
     }
   };
 
@@ -90,15 +98,14 @@ const Perfil = () => {
     if (!confirm("¿Eliminar TODAS las simulaciones guardadas?")) return;
     const u = getLoggedUser();
     if (!u?.rut) return;
-    const r = await fetch(`/api/simulations?rut=${u.rut}`, { method: 'DELETE' });
+    const r = await fetch(`/api/simulations?rut=${u.rut}`, { method: "DELETE" });
     if (r.ok) {
       setList([]);
       setSelectedIds([]);
-
-      // 🔔 avisar al Header para refrescar el badge
-      window.dispatchEvent(new CustomEvent('simulations:changed'));
+      window.dispatchEvent(new CustomEvent("simulations:changed"));
+      showToast("Perfil vaciado", undefined, "success");
     } else {
-      alert("No se pudo vaciar");
+      showToast("No se pudo vaciar", "Inténtalo nuevamente.", "error");
     }
   };
 
@@ -106,7 +113,7 @@ const Perfil = () => {
     setSelectedIds((prev) => {
       if (prev.includes(id)) return prev.filter((x) => x !== id);
       if (prev.length >= 2) {
-        alert("Solo puedes comparar 2 simulaciones. Quita una selección para elegir otra.");
+        showToast("Solo puedes comparar 2 simulaciones", "Quita una selección para elegir otra.", "error");
         return prev;
       }
       return [...prev, id];
@@ -114,9 +121,7 @@ const Perfil = () => {
   };
 
   const formatCurrency = (value?: number) =>
-    new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(
-      value ?? 0
-    );
+    new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", minimumFractionDigits: 0 }).format(value ?? 0);
 
   const formatDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString("es-CL") : "-");
 
@@ -148,7 +153,7 @@ const Perfil = () => {
 
   const handleCompare = () => {
     if (sel.length < 2) {
-      alert("Selecciona 2 simulaciones para comparar.");
+      showToast("Selecciona 2 simulaciones", "Elige exactamente dos para comparar.", "error");
       return;
     }
     setCompareOpen(true);
@@ -189,12 +194,10 @@ const Perfil = () => {
               const d = item.data as Sim;
               const checked = selectedIds.includes(item.id);
 
-              // Adaptador rápido para reusar goSolicitar(StoredSimulation)
               const asStored: StoredSimulation = {
-                // @ts-expect-error: usamos solo {id, data, createdAt} que goSolicitar necesita
+                // @ts-expect-error adaptado mínimamente
                 id: item.id,
                 data: item.data,
-                // tu UI usa createdAt en otros lados; aquí mapeamos desde DB
                 // @ts-ignore
                 createdAt: item.created_at,
               } as unknown as StoredSimulation;
@@ -291,10 +294,23 @@ const Perfil = () => {
             <DialogHeader>
               <DialogTitle>Comparación de simulaciones</DialogTitle>
             </DialogHeader>
-            {sel.length >= 2 ? <Comparison a={sel[0]} b={sel[1]} /> : <p className="text-sm text-muted-foreground">Selecciona 2 simulaciones para comparar.</p>}
+            {sel.length >= 2 ? (
+              <Comparison a={sel[0]} b={sel[1]} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Selecciona 2 simulaciones para comparar.</p>
+            )}
           </DialogContent>
         </Dialog>
       </main>
+
+      {/* Mini toast */}
+      <MiniToast
+        open={toastOpen}
+        title={toastMsg.title}
+        description={toastMsg.description}
+        variant={toastMsg.variant}
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 };
