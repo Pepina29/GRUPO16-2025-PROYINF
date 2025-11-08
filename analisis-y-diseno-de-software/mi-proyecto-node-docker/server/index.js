@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
+import simulationRoutes from './routes/simulations.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,7 @@ app.use(express.json());
 // API
 app.use('/api', authRoutes);
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
+app.use('/api/simulations', simulationRoutes);
 
 // Static del front
 app.use(express.static(path.join(__dirname, '../client/dist')));
