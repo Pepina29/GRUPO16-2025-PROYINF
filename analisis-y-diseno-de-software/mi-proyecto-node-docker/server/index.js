@@ -10,25 +10,24 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middleware
-app.use(cors({ origin: 'http://localhost:5173' }));
+// CORS
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }));
 app.use(express.json());
 
-// Rutas API
+// API
 app.use('/api', authRoutes);
+app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// Servir archivos estáticos de React - debe apuntar a la carpeta 'dist'
+// Static del front
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
-// Todas las rutas que no son API van a React
-app.use((req, res, next) => {
-  // Si la ruta no empieza con /api, sirve el index.html de la carpeta dist
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  } else {
-    next();
-  }
+// Fallback SPA: cualquier ruta que NO empiece con /api -> index.html
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
+
+// (opcional) 404 para rutas API no encontradas
+app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor escuchando en puerto ${PORT}`));
