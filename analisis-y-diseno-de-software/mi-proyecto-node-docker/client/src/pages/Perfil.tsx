@@ -46,11 +46,20 @@ const Perfil = () => {
   const load = async () => {
     const u = getLoggedUser();
     if (!u?.rut) { setList([]); return; }
+
     try {
       const r = await fetch(`/api/simulations?rut=${u.rut}`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+
       const j = await r.json();
-      setList(j.simulations || []);
-    } catch {
+      // 👇 debug temporal para ver el shape real
+      console.debug('[Perfil] /api/simulations?rut=', u.rut, '->', j);
+
+      // tolerante a diferentes claves/formatos
+      const sims = (j?.simulations ?? j?.rows ?? j) as any[];
+      setList(Array.isArray(sims) ? sims : []);
+    } catch (e) {
+      console.error('[Perfil] load() fallo:', e);
       setList([]);
     }
   };
