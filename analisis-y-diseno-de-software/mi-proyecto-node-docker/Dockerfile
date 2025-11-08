@@ -1,40 +1,42 @@
-# Dockerfile
-FROM node:18
+# syntax=docker/dockerfile:1
 
+########################
+# Build
+########################
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# 1. Copiar TODOS los package.json primero
+# Instalar deps del root (express, cors, pg están aquí)
 COPY package*.json ./
+RUN npm install
+
+# Instalar deps de client y server (aprovecha caché)
 COPY client/package*.json ./client/
 COPY server/package*.json ./server/
+RUN cd client && npm install
+RUN cd server && npm install
 
-# 2. Instalar dependencias del ROOT (si existen)
-RUN npm install || true
+# Copiar código (incluye db.js en root)
+COPY client ./client
+COPY server ./server
+COPY db.js ./db.js
 
-# 3. Instalar dependencias del CLIENT
-WORKDIR /app/client
-RUN npm install
+# Build del front
+RUN cd client && npm run build
 
-# 4. Instalar dependencias del SERVER
-WORKDIR /app/server
-RUN npm install
-
-# 5. Volver al root y copiar TODO el código
+########################
+# Runtime
+########################
+FROM node:20-alpine
 WORKDIR /app
-COPY . .
+ENV NODE_ENV=production
 
-# 6. Hacer el build desde la carpeta client
-WORKDIR /app/client
-RUN npm run build
+# Copiamos lo necesario
+COPY --from=builder /app/server ./server
+COPY --from=builder /app/client/dist ./client/dist
+COPY --from=builder /app/db.js ./db.js
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
 
-# 7. Verificar que el build se creó (para debug)
-RUN ls -la dist/
-
-# 8. Volver al root
-WORKDIR /app
-
-# Exponer puerto
 EXPOSE 3000
-
-# Iniciar servidor
-CMD ["npm", "start"]
+CMD ["node", "server/index.js"]
