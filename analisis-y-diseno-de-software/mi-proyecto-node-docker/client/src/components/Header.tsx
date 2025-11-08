@@ -1,3 +1,4 @@
+// src/components/Header.tsx
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,9 @@ interface User {
   email: string;
 }
 
+// donde persistimos el usuario logeado
+const USER_KEY = "app:user";
+
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,10 +25,11 @@ export const Header = () => {
   const [loginOpen, setLoginOpen] = useState(false);
   const [registerOpen, setRegisterOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // --- badge simulaciones guardadas ---
   const [savedCount, setSavedCount] = useState(0);
-
   const readSavedCount = () => {
     try {
       const raw = localStorage.getItem(SIMS_KEY);
@@ -36,15 +41,28 @@ export const Header = () => {
     }
   };
 
+  // cargar usuario desde localStorage al iniciar
+  useEffect(() => {
+    const raw = localStorage.getItem(USER_KEY);
+    if (raw) {
+      try {
+        const u = JSON.parse(raw) as User;
+        setUser(u);
+      } catch {
+        localStorage.removeItem(USER_KEY);
+      }
+    }
+  }, []);
+
+  // contador de simulaciones
   useEffect(() => {
     const update = () => setSavedCount(readSavedCount());
     const onStorage = (_e: StorageEvent) => update();
     const onCustom = (_e: Event) => update();
 
-    update(); // carga inicial
+    update();
     window.addEventListener("storage", onStorage);
     window.addEventListener("simulations:changed", onCustom);
-
     return () => {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("simulations:changed", onCustom);
@@ -52,36 +70,93 @@ export const Header = () => {
   }, []);
   // ------------------------------------
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    // Simulación de login
-    setUser({
-      rut: parseInt(formData.get("rut") as string),
-      nombre: "Usuario",
-      apellido: "Demo",
-      email: "demo@ejemplo.com",
+  // helper de fetch
+  const apiFetch = async (path: string, body: any) => {
+    const res = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
-    setLoginOpen(false);
-    e.currentTarget.reset();
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.error || "Error de servidor");
+    }
+    return data;
   };
 
-  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    // Simulación de registro
-    setUser({
-      rut: parseInt(formData.get("rut") as string),
-      nombre: formData.get("nombre") as string,
-      apellido: formData.get("apellido") as string,
-      email: formData.get("email") as string,
-    });
-    setRegisterOpen(false);
-    e.currentTarget.reset();
+    setErrorMsg(null);
+    setLoading(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const rut = parseInt(formData.get("rut") as string, 10);
+      const password = String(formData.get("password") || "");
+
+      // POST real a tu API
+      const data = await apiFetch("/api/login", { rut, password });
+
+      // mapear del backend a tu interfaz
+      const u: User = {
+        rut: Number(data.user.rut),
+        nombre: data.user.nombre_cliente,
+        apellido: data.user.apellido_cliente,
+        email: data.user.email,
+      };
+
+      setUser(u);
+      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      setLoginOpen(false);
+      (e.currentTarget as HTMLFormElement).reset();
+    } catch (err: any) {
+      setErrorMsg(err.message || "No se pudo iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setLoading(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      const rut = parseInt(formData.get("rut") as string, 10);
+      const nombre = String(formData.get("nombre") || "");
+      const apellido = String(formData.get("apellido") || "");
+      const email = String(formData.get("email") || "");
+      const password = String(formData.get("password") || "");
+
+      // POST real a tu API
+      const data = await apiFetch("/api/register", {
+        rut,
+        nombre,
+        apellido,
+        email,
+        password,
+      });
+
+      const u: User = {
+        rut: Number(data.user.rut),
+        nombre: data.user.nombre_cliente,
+        apellido: data.user.apellido_cliente,
+        email: data.user.email,
+      };
+
+      setUser(u);
+      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      setRegisterOpen(false);
+      (e.currentTarget as HTMLFormElement).reset();
+    } catch (err: any) {
+      setErrorMsg(err.message || "No se pudo registrar");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = () => {
     setUser(null);
+    localStorage.removeItem(USER_KEY);
   };
 
   return (
@@ -173,8 +248,11 @@ export const Header = () => {
               <Label htmlFor="login-password">Contraseña</Label>
               <Input id="login-password" name="password" type="password" required />
             </div>
-            <Button type="submit" className="w-full">
-              Entrar
+
+            {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Entrando..." : "Entrar"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               ¿No tienes cuenta?{" "}
@@ -220,8 +298,11 @@ export const Header = () => {
               <Label htmlFor="reg-password">Contraseña</Label>
               <Input id="reg-password" name="password" type="password" minLength={6} required />
             </div>
-            <Button type="submit" className="w-full">
-              Registrarse
+
+            {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Registrando..." : "Registrarse"}
             </Button>
             <p className="text-center text-sm text-muted-foreground">
               ¿Ya tienes cuenta?{" "}
