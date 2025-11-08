@@ -8,7 +8,7 @@ CREATE TABLE usuario (
     nombre_cliente VARCHAR(50) NOT NULL,
     apellido_cliente VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    contraseña TEXT NOT NULL,
+    contrasena TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
