@@ -6,7 +6,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogIn, UserPlus, LogOut, Info, Home } from "lucide-react";
-import { SIMS_KEY } from "@/components/simStorage";
 
 interface User {
   rut: number;
@@ -30,42 +29,56 @@ export const Header = () => {
 
   // --- badge simulaciones guardadas ---
   const [savedCount, setSavedCount] = useState(0);
-  const readSavedCount = () => {
+
+  const getLoggedUser = (): User | null => {
     try {
-      const raw = localStorage.getItem(SIMS_KEY);
-      if (!raw) return 0;
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr.length : 0;
+      const raw = localStorage.getItem(USER_KEY);
+      return raw ? (JSON.parse(raw) as User) : null;
     } catch {
-      return 0;
+      return null;
     }
   };
 
+  const fetchSavedCount = async () => {
+    const u = getLoggedUser();
+    if (!u?.rut) {
+      setSavedCount(0);
+      return;
+    }
+    try {
+      const r = await fetch(`/api/simulations/count?rut=${u.rut}`);
+      const j = await r.json();
+      setSavedCount(j?.count ?? 0);
+    } catch {
+      setSavedCount(0);
+    }
+  };
+  // ------------------------------------
+
   // cargar usuario desde localStorage al iniciar
   useEffect(() => {
-    const raw = localStorage.getItem(USER_KEY);
-    if (raw) {
-      try {
-        const u = JSON.parse(raw) as User;
-        setUser(u);
-      } catch {
-        localStorage.removeItem(USER_KEY);
-      }
-    }
+    const u = getLoggedUser();
+    if (u) setUser(u);
   }, []);
 
-  // contador de simulaciones
+  // contador de simulaciones: carga inicial + escucha eventos
   useEffect(() => {
-    const update = () => setSavedCount(readSavedCount());
-    const onStorage = (_e: StorageEvent) => update();
-    const onCustom = (_e: Event) => update();
+    // carga inicial
+    fetchSavedCount();
 
-    update();
+    // cuando se guarden/eliminen simulaciones
+    const onSimsChanged = () => fetchSavedCount();
+    window.addEventListener("simulations:changed", onSimsChanged as EventListener);
+
+    // cuando cambie el usuario (login/logout en otra pestaña)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === USER_KEY) fetchSavedCount();
+    };
     window.addEventListener("storage", onStorage);
-    window.addEventListener("simulations:changed", onCustom);
+
     return () => {
+      window.removeEventListener("simulations:changed", onSimsChanged as EventListener);
       window.removeEventListener("storage", onStorage);
-      window.removeEventListener("simulations:changed", onCustom);
     };
   }, []);
   // ------------------------------------
@@ -93,10 +106,8 @@ export const Header = () => {
       const rut = parseInt(formData.get("rut") as string, 10);
       const password = String(formData.get("password") || "");
 
-      // POST real a tu API
       const data = await apiFetch("/api/login", { rut, password });
 
-      // mapear del backend a tu interfaz
       const u: User = {
         rut: Number(data.user.rut),
         nombre: data.user.nombre_cliente,
@@ -108,6 +119,9 @@ export const Header = () => {
       localStorage.setItem(USER_KEY, JSON.stringify(u));
       setLoginOpen(false);
       (e.currentTarget as HTMLFormElement).reset();
+
+      // refrescar contador al iniciar sesión
+      fetchSavedCount();
     } catch (err: any) {
       setErrorMsg(err.message || "No se pudo iniciar sesión");
     } finally {
@@ -127,7 +141,6 @@ export const Header = () => {
       const email = String(formData.get("email") || "");
       const password = String(formData.get("password") || "");
 
-      // POST real a tu API
       const data = await apiFetch("/api/register", {
         rut,
         nombre,
@@ -147,6 +160,9 @@ export const Header = () => {
       localStorage.setItem(USER_KEY, JSON.stringify(u));
       setRegisterOpen(false);
       (e.currentTarget as HTMLFormElement).reset();
+
+      // refrescar contador tras registro
+      fetchSavedCount();
     } catch (err: any) {
       setErrorMsg(err.message || "No se pudo registrar");
     } finally {
@@ -157,6 +173,7 @@ export const Header = () => {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem(USER_KEY);
+    setSavedCount(0); // limpiar badge
   };
 
   return (

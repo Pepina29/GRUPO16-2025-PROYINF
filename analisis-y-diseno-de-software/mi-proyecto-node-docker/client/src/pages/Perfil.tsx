@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getSimulations,
-  removeSimulation,
-  clearSimulations,
-  SIM_LIMIT,
-  StoredSimulation,
-} from "@/components/simStorage";
+const SIM_LIMIT = 5;
+
+type StoredSimulation = {
+  id: string;
+  data: any;
+  createdAt?: string; // opcional por si reúsas en otros lados
+};
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -25,27 +25,71 @@ type Sim = {
   [k: string]: unknown;
 };
 
+const USER_KEY = "app:user";
+const getLoggedUser = () => {
+  try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
+};
+
+type DbSimulation = {
+  id: string;
+  rut: number;
+  data: any;
+  created_at: string;
+};
+
 const Perfil = () => {
-  const [list, setList] = useState<StoredSimulation[]>([]);
+  const [list, setList] = useState<DbSimulation[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
   const navigate = useNavigate();
 
-  const load = () => setList(getSimulations());
+  const load = async () => {
+    const u = getLoggedUser();
+    if (!u?.rut) { setList([]); return; }
+    try {
+      const r = await fetch(`/api/simulations?rut=${u.rut}`);
+      const j = await r.json();
+      setList(j.simulations || []);
+    } catch {
+      setList([]);
+    }
+  };
+  useEffect(() => { load(); }, []);
+
   useEffect(() => {
-    load();
+    const onChanged = () => load();
+    window.addEventListener('simulations:changed', onChanged as EventListener);
+    return () => window.removeEventListener('simulations:changed', onChanged as EventListener);
   }, []);
 
-  const onDelete = (id: string) => {
-    setList(removeSimulation(id));
-    setSelectedIds((s) => s.filter((x) => x !== id));
+  const onDelete = async (id: string) => {
+    const u = getLoggedUser();
+    if (!u?.rut) return;
+    const r = await fetch(`/api/simulations/${id}?rut=${u.rut}`, { method: 'DELETE' });
+    if (r.ok) {
+      setList((prev) => prev.filter(x => x.id !== id));
+      setSelectedIds((s) => s.filter((x) => x !== id));
+
+      // 🔔 avisar al Header para refrescar el badge
+      window.dispatchEvent(new CustomEvent('simulations:changed'));
+    } else {
+      alert("No se pudo eliminar");
+    }
   };
 
-  const onClear = () => {
-    if (confirm("¿Eliminar TODAS las simulaciones guardadas?")) {
-      clearSimulations();
+  const onClear = async () => {
+    if (!confirm("¿Eliminar TODAS las simulaciones guardadas?")) return;
+    const u = getLoggedUser();
+    if (!u?.rut) return;
+    const r = await fetch(`/api/simulations?rut=${u.rut}`, { method: 'DELETE' });
+    if (r.ok) {
       setList([]);
       setSelectedIds([]);
+
+      // 🔔 avisar al Header para refrescar el badge
+      window.dispatchEvent(new CustomEvent('simulations:changed'));
+    } else {
+      alert("No se pudo vaciar");
     }
   };
 
@@ -82,7 +126,14 @@ const Perfil = () => {
   };
 
   const sel = useMemo(
-    () => selectedIds.map((id) => list.find((x) => x.id === id)).filter(Boolean) as StoredSimulation[],
+    () =>
+      selectedIds
+        .map((id) => {
+          const x = list.find((s) => s.id === id);
+          if (!x) return null;
+          return { id: x.id, data: x.data, createdAt: x.created_at } as StoredSimulation;
+        })
+        .filter(Boolean) as StoredSimulation[],
     [selectedIds, list]
   );
 
@@ -128,6 +179,17 @@ const Perfil = () => {
             {list.map((item, idx) => {
               const d = item.data as Sim;
               const checked = selectedIds.includes(item.id);
+
+              // Adaptador rápido para reusar goSolicitar(StoredSimulation)
+              const asStored: StoredSimulation = {
+                // @ts-expect-error: usamos solo {id, data, createdAt} que goSolicitar necesita
+                id: item.id,
+                data: item.data,
+                // tu UI usa createdAt en otros lados; aquí mapeamos desde DB
+                // @ts-ignore
+                createdAt: item.created_at,
+              } as unknown as StoredSimulation;
+
               return (
                 <Card key={item.id} className={`overflow-hidden ${checked ? "ring-2 ring-primary" : ""}`}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -147,7 +209,8 @@ const Perfil = () => {
                         <span>Seleccionar</span>
                       </label>
 
-                      <span className="text-xs text-muted-foreground">Guardada: {formatDate(item.createdAt)}</span>
+                      <span className="text-xs text-muted-foreground">Guardada: {formatDate(item.created_at)}</span>
+
                       <Button
                         variant="ghost"
                         size="icon"
@@ -203,7 +266,7 @@ const Perfil = () => {
                   </CardContent>
 
                   <CardFooter className="flex items-center justify-end">
-                    <Button onClick={() => goSolicitar(item)}>
+                    <Button onClick={() => goSolicitar(asStored)}>
                       Solicitar préstamo <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </CardFooter>

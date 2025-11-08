@@ -5,7 +5,8 @@ import { CheckCircle2, Calendar, TrendingUp, DollarSign } from "lucide-react";
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
-import { addSimulation, SIM_LIMIT } from "./simStorage";
+
+const USER_KEY = "app:user";
 
 interface LoanResultsProps {
   open: boolean;
@@ -30,22 +31,54 @@ export const LoanResults = ({
 }: LoanResultsProps) => {
   const navigate = useNavigate();
 
-  const handleGuardarPerfil = () => {
-    const sim = {
-      monto,
-      tasa: tasaInteres,          // guarda con la clave "tasa"
-      cuotas,
-      fechaPrimerPago,
-      pagoPorCuota,
-      montoTotal,
-    };
-    const res = addSimulation(sim);
-    if (!res.ok && res.reason === "limit") {
+  const getLoggedUser = () => {
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as { rut: number };
+  } catch { return null; }
+};
+
+// dentro del componente:
+const handleGuardarPerfil = async () => {
+  const current = getLoggedUser();
+  if (!current?.rut) {
+    alert("Debes iniciar sesión para guardar simulaciones.");
+    return;
+  }
+
+  const sim = {
+    monto,
+    tasa: tasaInteres,
+    cuotas,
+    fechaPrimerPago,
+    pagoPorCuota,
+    montoTotal,
+  };
+
+  try {
+    const res = await fetch('/api/simulations', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ rut: current.rut, data: sim })
+    });
+
+    if (res.status === 409) {
       alert(`Alcanzaste el máximo de ${SIM_LIMIT} simulaciones. Ve a Perfil para borrar alguna.`);
       return;
     }
+
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}));
+      throw new Error(j.error || 'Error guardando simulación');
+    }
+
+    window.dispatchEvent(new CustomEvent('simulations:changed'));
     alert("Simulación guardada en Perfil");
-  };
+  } catch (e:any) {
+    alert(e.message || "Error guardando simulación");
+  }
+};
 
   const handleSolicitar = () => {
     // Cerrar el diálogo
