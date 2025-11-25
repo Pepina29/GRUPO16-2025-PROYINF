@@ -91,7 +91,7 @@ export const LoanSimulator = () => {
               <Label htmlFor="cuotas">Cantidad de cuotas</Label>
               <Select value={cuotas} onValueChange={setCuotas} required>
                 <SelectTrigger id="cuotas">
-                  <SelectValue placeholder="Seleccioná la cantidad de cuotas" />
+                  <SelectValue placeholder="Selecciona la cantidad de cuotas" />
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]">
                   {Array.from({ length: 71 }, (_, i) => i + 2).map((num) => (
