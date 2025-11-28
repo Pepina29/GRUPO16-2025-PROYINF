@@ -9,6 +9,7 @@ import LoanApplication from "./pages/LoanApplication";
 import Information from "./pages/Information";
 import EvalRiesgo from "./pages/EvalRiesgo";
 import EvalRiesgoInt from "./pages/EvalRiesgoInt";
+import Perfil from "@/pages/Perfil";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/solicitar-prestamo" element={<LoanApplication />} />
           <Route path="/informacion" element={<Information />} />
+          <Route path="/perfil" element={<Perfil />} />
           <Route path="/eval-riesgo" element={<EvalRiesgo />} />
           <Route path="/eval-riesgo-int" element={<EvalRiesgoInt />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

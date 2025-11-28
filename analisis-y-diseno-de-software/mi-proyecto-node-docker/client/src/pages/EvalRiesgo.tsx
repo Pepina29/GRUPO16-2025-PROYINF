@@ -16,26 +16,29 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Shield, FileCheck, AlertTriangle, CheckCircle2 } from "lucide-react";
+import MiniToast from "@/components/MiniToast";
 
 const EvalRiesgo = () => {
   const navigate = useNavigate();
   const [consentimiento, setConsentimiento] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+  
+  // Toast para advertencia
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState({ title: "", description: "" });
 
   const handleContinue = () => {
-    if (consentimiento) {
-      // Si acepta, continuar con la evaluación usando RUT
-      // Por ahora solo mostramos un mensaje, luego implementarás la lógica
-      console.log("Usuario aceptó el uso de RUT para evaluación");
-      // navigate("/eval-riesgo-resultado"); // Ruta futura
-    } else {
-      // Si no acepta, mostrar el diálogo
-      setShowDialog(true);
+    if (!consentimiento) {
+      // Mostrar toast de advertencia
+      setToastMsg({
+        title: "Debes aceptar el consentimiento",
+        description: "Por favor, marca la casilla para continuar con la evaluación."
+      });
+      setToastOpen(true);
+      return;
     }
-  };
 
-  const handleGoToManualForm = () => {
-    setShowDialog(false);
+    // Si acepta, continuar con la evaluación
     navigate("/eval-riesgo-int");
   };
 
@@ -173,7 +176,7 @@ const EvalRiesgo = () => {
                 </Button>
                 
                 <p className="text-xs text-center text-muted-foreground">
-                  Si no deseas autorizar el uso de tu RUT, puedes completar un formulario manual
+                  Debes aceptar el consentimiento para continuar
                 </p>
               </div>
             </CardContent>
@@ -200,39 +203,21 @@ const EvalRiesgo = () => {
         </section>
       </main>
 
-      {/* Diálogo cuando no acepta */}
-      <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-accent" />
-              ¿No quieres autorizar el uso de tu RUT?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="space-y-3 pt-2">
-              <p>
-                No te preocupes, entendemos tu preocupación por la privacidad.
-              </p>
-              <p className="font-medium text-foreground">
-                Puedes completar nuestro formulario manual de evaluación de riesgo. 
-                Este proceso tomará un poco más de tiempo, pero no requiere el uso de tu RUT.
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver atrás</AlertDialogCancel>
-            <AlertDialogAction onClick={handleGoToManualForm}>
-              Ir al formulario manual
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       {/* Footer */}
       <footer className="bg-primary text-primary-foreground py-8 mt-16">
         <div className="container mx-auto text-center">
           <p>&copy; 2025 Sistema de Préstamos. Todos los derechos reservados.</p>
         </div>
       </footer>
+
+      {/* Mini Toast */}
+      <MiniToast
+        open={toastOpen}
+        title={toastMsg.title}
+        description={toastMsg.description}
+        variant="error"
+        onClose={() => setToastOpen(false)}
+      />
     </div>
   );
 };

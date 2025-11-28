@@ -123,7 +123,8 @@ export const Header = () => {
       setUser(u);
       localStorage.setItem(USER_KEY, JSON.stringify(u));
       setLoginOpen(false);
-      (e.currentTarget as HTMLFormElement).reset();
+      setRutLogin(""); // limpiar RUT
+      e.currentTarget?.reset(); // safe reset
 
       // refrescar contador al iniciar sesión
       fetchSavedCount();
@@ -164,7 +165,8 @@ export const Header = () => {
       setUser(u);
       localStorage.setItem(USER_KEY, JSON.stringify(u));
       setRegisterOpen(false);
-      (e.currentTarget as HTMLFormElement).reset();
+      setRutRegister(""); // limpiar RUT
+      e.currentTarget?.reset(); // safe reset
 
       // refrescar contador tras registro
       fetchSavedCount();
@@ -211,6 +213,14 @@ export const Header = () => {
               >
                 <Info className="h-4 w-4 mr-2" />
                 Información
+              </Button>
+              <Button
+                variant={location.pathname === "/eval-riesgo" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => navigate("/eval-riesgo")}
+              >
+                <Info className="h-4 w-4 mr-2" />
+                Evaluación
               </Button>
             </nav>
           </div>
@@ -290,7 +300,7 @@ export const Header = () => {
                   setRegisterOpen(true);
                 }}
               >
-                Registrate acá
+                Regístrate acá
               </button>
             </p>
           </form>
