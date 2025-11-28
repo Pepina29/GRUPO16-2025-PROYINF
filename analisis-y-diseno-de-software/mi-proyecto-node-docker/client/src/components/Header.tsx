@@ -6,9 +6,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogIn, UserPlus, LogOut, Info, Home } from "lucide-react";
+import RutInput from "@/components/RutInput";
+
 
 interface User {
-  rut: number;
+  rut: string;
   nombre: string;
   apellido: string;
   email: string;
@@ -26,6 +28,9 @@ export const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [rutLogin, setRutLogin] = useState("");
+  const [rutRegister, setRutRegister] = useState("");
+
 
   // --- badge simulaciones guardadas ---
   const [savedCount, setSavedCount] = useState(0);
@@ -103,13 +108,13 @@ export const Header = () => {
     setLoading(true);
     try {
       const formData = new FormData(e.currentTarget);
-      const rut = parseInt(formData.get("rut") as string, 10);
+      const rut = rutLogin;
       const password = String(formData.get("password") || "");
 
       const data = await apiFetch("/api/login", { rut, password });
 
       const u: User = {
-        rut: Number(data.user.rut),
+        rut: data.user.rut,
         nombre: data.user.nombre_cliente,
         apellido: data.user.apellido_cliente,
         email: data.user.email,
@@ -135,7 +140,7 @@ export const Header = () => {
     setLoading(true);
     try {
       const formData = new FormData(e.currentTarget);
-      const rut = parseInt(formData.get("rut") as string, 10);
+      const rut = rutRegister;
       const nombre = String(formData.get("nombre") || "");
       const apellido = String(formData.get("apellido") || "");
       const email = String(formData.get("email") || "");
@@ -150,7 +155,7 @@ export const Header = () => {
       });
 
       const u: User = {
-        rut: Number(data.user.rut),
+        rut: data.user.rut, // ya viene bien formateado desde backend
         nombre: data.user.nombre_cliente,
         apellido: data.user.apellido_cliente,
         email: data.user.email,
@@ -259,7 +264,11 @@ export const Header = () => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="login-rut">RUT</Label>
-              <Input id="login-rut" name="rut" type="number" placeholder="12345678" required />
+              <RutInput 
+                value={rutLogin}
+                onChange={setRutLogin}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="login-password">Contraseña</Label>
@@ -297,7 +306,11 @@ export const Header = () => {
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="reg-rut">RUT</Label>
-              <Input id="reg-rut" name="rut" type="number" placeholder="12345678" required />
+              <RutInput
+                value={rutRegister}
+                onChange={setRutRegister}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-nombre">Nombre</Label>

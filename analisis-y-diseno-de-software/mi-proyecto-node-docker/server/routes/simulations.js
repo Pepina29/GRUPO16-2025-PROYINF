@@ -1,13 +1,18 @@
 // server/routes/simulations.js
 import { Router } from 'express';
 import pool from '../../db.js';
+import { formatearRut, validarRutJs } from '../utils/rut.js';
 
 const router = Router();
 
-/** GET /api/simulations?rut=123  -> lista del usuario */
 router.get('/', async (req, res) => {
-  const rut = Number(req.query.rut);
+  const rut = req.query.rut;
   if (!rut) return res.status(400).json({ error: 'Falta rut' });
+
+  const rutFmt = formatearRut(rut);
+  if (!validarRutJs(rutFmt)) {
+    return res.status(400).json({ error: 'RUT inválido' });
+  }
 
   try {
     const { rows } = await pool.query(
@@ -15,7 +20,7 @@ router.get('/', async (req, res) => {
        FROM user_simulation
        WHERE rut_cliente = $1
        ORDER BY created_at DESC`,
-      [rut]
+      [rutFmt]
     );
     res.json({ simulations: rows });
   } catch (e) {
@@ -24,9 +29,10 @@ router.get('/', async (req, res) => {
   }
 });
 
-/** GET /api/simulations/count?rut=123 */
+
+/** GET /api/simulations/count?rut=12.345.678-9 */
 router.get('/count', async (req, res) => {
-  const rut = Number(req.query.rut);
+  const rut = req.query.rut;
   if (!rut) return res.status(400).json({ error: 'Falta rut' });
 
   try {
@@ -63,9 +69,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-/** DELETE /api/simulations/:id?rut=123 */
+/** DELETE /api/simulations/:id?rut=12.345.678-9 */
 router.delete('/:id', async (req, res) => {
-  const rut = Number(req.query.rut);
+  const rut = req.query.rut;
   const { id } = req.params;
   if (!rut || !id) return res.status(400).json({ error: 'Falta rut o id' });
 
@@ -82,9 +88,9 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-/** DELETE /api/simulations?rut=123  (todas) */
+/** DELETE /api/simulations?rut=12.345.678-9  (todas) */
 router.delete('/', async (req, res) => {
-  const rut = Number(req.query.rut);
+  const rut = req.query.rut;
   if (!rut) return res.status(400).json({ error: 'Falta rut' });
 
   try {
