@@ -15,6 +15,9 @@
 # Video prototipo:
 >[Prototipo del sistema - Proyecto INF236](https://drive.google.com/file/d/1OQ7sbg4d3m2tbigpcXDilGzjYwD4_I9q/view?usp=sharing)
 
+# Video final:
+>[Ultima fase del sistema - Proyecto INF236](https://usmcl-my.sharepoint.com/:v:/g/personal/ralvear_usm_cl/IQAU0b_0S7x1Q4uP1HpM8UmlAd9H68v3KgN_FtqpXxfTOaY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=yHJBWe)
+
 # Wiki y evidencia del proyecto.
 >[Wiki grupo 16](https://github.com/Pepina29/GRUPO16-2025-PROYINF/wiki)
 
@@ -31,6 +34,7 @@ El acceso directo a la página se puede encontrar [aquí](http://localhost:3000/
 
 # Aspectos técnicos relevantes:
     -
+
 
 
 
